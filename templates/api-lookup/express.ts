@@ -77,11 +77,27 @@ interface LookupResponse {
     warningMessage: string | null // If set a warning is shown in the user interface
 }
 
+const authorize = (req: Request) => {
+    const authKey = Object.keys(req.headers).find(headerKey => headerKey.toLowerCase() === "authorization");
+
+    if (!authKey) return false;
+
+    const authValue = req.headers[authKey];
+    // TODO Replace with your own authorization token which is set in the project settings
+    return authValue === `Bearer ${process.env.AUTH_TOKEN}`;
+}
+
 /**
  * Simple verification
  */
 app.post("/", (req, res) => {
     const body: LookupRequest = req.body
+
+    // OPTIONAL: Authorize request using key in header
+    if (!authorize(req)) {
+        res.status(401).send({error: 'Unauthorized'})
+        return
+    }
 
     // TODO: Implement lookup logic here
     const valid = true
